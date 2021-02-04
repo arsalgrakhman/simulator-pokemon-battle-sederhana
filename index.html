@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+		// ---------------------------------- Deklarasi & Inisiasi ------------------------------------
+		let randomInt, turn = 0, indexMove, move, main;
+
+		// jika berhasil menyerang, bernilai true. sebaliknya, false.
+		let statusAccuracy = function(numberAccuracy) {
+			randomInt = Math.floor(Math.random() * 100);
+			 if (randomInt < 100 - numberAccuracy) {
+			 	return false;
+			 } else {
+			 	return true;
+			 } 
+		};
+
+		// damage yang kita berikan kepada lawan tergantung dari tipe move dan tipe pokemon lawan
+		let typeEffectiveness = function(typeElement, indexArrPlayer1, arrPlayer1, arrPlayer2) {
+			damage = arrPlayer1.moves[indexArrPlayer1].damage;
+			
+			for (let i = 0; i < arrPlayer2.type.length; i++) {
+				// dark
+				if (typeElement == 'dark') {
+					// super effective
+					if (arrPlayer2.type[i] == 'ghost' || arrPlayer2.type[i] == 'psychc') {
+						damage *= 2;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'dark' || arrPlayer2.type[i] == 'fighting' || arrPlayer2.type[i] == 'fairy' || arrPlayer2.type[i] == 'steel') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// water
+				} else if (typeElement == 'water') {
+					// super effective
+					if (arrPlayer2.type[i] == 'rock' || arrPlayer2.type[i] == 'fire' || arrPlayer2.type[i] == 'ground') {
+						damage *= 2;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'water' || arrPlayer2.type[i] == 'grass' || arrPlayer2.type[i] == 'dragon') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// ice
+				} else if (typeElement == 'ice') {
+					// super effective
+					if (arrPlayer2.type[i] == 'flying' || arrPlayer2.type[i] == 'ground' || arrPlayer2.type[i] == 'dragon' || arrPlayer2.type[i] == 'grass') {
+						damage *= 2;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'water' || arrPlayer2.type[i] == 'fire' || arrPlayer2.type[i] == 'steel' || arrPlayer2.type[i] == 'ice') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// normal
+				} else if (typeElement == 'normal') {
+					// not effective
+					if (arrPlayer2.type[i] == 'ghost') {
+						damage *= 0;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'rock' || arrPlayer2.type[i] == 'steel') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// fighting
+				} else if (typeElement == 'fighting') {
+					// super effective
+					if (arrPlayer2.type[i] == 'normal' || arrPlayer2.type[i] == 'rock' || arrPlayer2.type[i] == 'ice' || arrPlayer2.type[i] == 'steel' || arrPlayer2.type[i] == 'dark') {
+						damage *= 2;
+
+					// not effective
+					} else if (arrPlayer2.type[i] == 'ghost') {
+						damage *= 0;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'flying' || arrPlayer2.type[i] == 'psychc' || arrPlayer2.type[i] == 'fairy' || arrPlayer2.type[i] == 'poison' || arrPlayer2.type[i] == 'bug') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// flying
+				} else if (typeElement == 'flying') {
+					// super effective
+					if (arrPlayer2.type[i] == 'fighting' || arrPlayer2.type[i] == 'grass' || arrPlayer2.type[i] == 'bug') {
+						damage *= 2;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'rock' || arrPlayer2.type[i] == 'steel' || arrPlayer2.type[i] == 'electric') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// poison
+				} else if (typeElement == 'poison') {
+					// super effective
+					if (arrPlayer2.type[i] == 'fairy' || arrPlayer2.type[i] == 'grass') {
+						damage *= 2;
+
+					// not effective
+					} else if (arrPlayer2.type[i] == 'steel') {
+						damage *= 0;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'poison' || arrPlayer2.type[i] == 'ground' || arrPlayer2.type[i] == 'rock' || arrPlayer2.type[i] == 'ghost') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// ground
+				} else if (typeElement == 'ground') {
+					// super effective
+					if (arrPlayer2.type[i] == 'rock' || arrPlayer2.type[i] == 'poison' || arrPlayer2.type[i] == 'fire' || arrPlayer2.type[i] == 'steel' || arrPlayer2.type[i] == 'electric') {
+						damage *= 2;
+
+					// not effevtive
+					} else if (arrPlayer2.type[i] == 'flying') {
+						damage *= 0;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'grass' || arrPlayer2.type[i] == 'bug') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// rock
+				} else if (typeElement == 'rock') {
+					// super effective
+					if (arrPlayer2.type[i] == 'bug' || arrPlayer2.type[i] == 'fire' || arrPlayer2.type[i] == 'ice' || arrPlayer2.type[i] == 'flying') {
+						damage *= 2;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'fighting' || arrPlayer2.type[i] == 'steel' || arrPlayer2.type[i] == 'ground') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// bug
+				} else if (typeElement == 'bug') {
+					// super effective
+					if (arrPlayer2.type[i] == 'grass' || arrPlayer2.type[i] == 'psychc' || arrPlayer2.type[i] == 'dark') {
+						damage *= 2;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'flying' || arrPlayer2.type[i] == 'steel' || arrPlayer2.type[i] == 'fairy' || arrPlayer2.type[i] == 'poison' || arrPlayer2.type[i] == 'fighting' || arrPlayer2.type[i] == 'ghost' || arrPlayer2.type[i] == 'fire') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+				
+				// ghost
+				} else if (typeElement == 'ghost') {
+					// super effective
+					if (arrPlayer2.type[i] == 'ghost' || arrPlayer2.type[i] == 'psychc') {
+						damage *= 2;
+
+					// not effective
+					} else if (arrPlayer2.type[i] == 'normal') {
+						damage *= 0;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'dark') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+				
+				// steel
+				} else if (typeElement == 'steel') {
+					// super effective
+					if (arrPlayer2.type[i] == 'fairy' || arrPlayer2.type[i] == 'rock' || arrPlayer2.type[i] == 'ice') {
+						damage *= 2;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'steel' || arrPlayer2.type[i] == 'fire' || arrPlayer2.type[i] == 'water' || arrPlayer2.type[i] == 'electric') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// fire
+				} else if (typeElement == 'fire') {
+					// super effective
+					if (arrPlayer2.type[i] == 'bug' || arrPlayer2.type[i] == 'grass' || arrPlayer2.type[i] == 'ice' || arrPlayer2.type[i] == 'steel') {
+						damage *= 2;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'fire' || arrPlayer2.type[i] == 'rock' || arrPlayer2.type[i] == 'dragon' || arrPlayer2.type[i] == 'water') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+
+				// grass
+				} else if (typeElement == 'grass') {
+					// super effective
+					if (arrPlayer2.type[i] == 'ground' || arrPlayer2.type[i] == 'rock' || arrPlayer2.type[i] == 'water') {
+						damage *= 2;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'flying' || arrPlayer2.type[i] == 'poison' || arrPlayer2.type[i] == 'steel' || arrPlayer2.type[i] == 'dragon' || arrPlayer2.type[i] == 'grass' || arrPlayer2.type[i] == 'fire' || arrPlayer2.type[i] == 'bug') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// electric
+				} else if (typeElement == 'electric') {
+					// super effective
+					if (arrPlayer2.type[i] == 'flying' || arrPlayer2.type[i] == 'water') {
+						damage *= 2;
+
+					// not effective
+					} else if (arrPlayer2.type[i] == 'ground') {
+						damage *= 0;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'electric' || arrPlayer2.type[i] == 'grass') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// psychc
+				} else if (typeElement == 'psychc') {
+					// super effective
+					if (arrPlayer2.type[i] == 'poison' || arrPlayer2.type[i] == 'fighting') {
+						damage *= 2;
+
+					// not effective
+					} else if (arrPlayer2.type[i] == 'dark') {
+						damage *= 0;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'steel' || arrPlayer2.type[i] == 'psychc') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// dragon
+				} else if (typeElement == 'dragon') {
+					// super effective
+					if (arrPlayer2.type[i] == 'dragon') {
+						damage *= 2;
+
+					// not effective
+					} else if (arrPlayer2.type[i] == 'fairy') {
+						damage *= 0;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'steel') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+
+				// fairy
+				} else if (typeElement == 'fairy') {
+					// super effective
+					if (arrPlayer2.type[i] == 'fighting' || arrPlayer2.type[i] == 'dragon' || arrPlayer2.type[i] == 'dark') {
+						damage *= 2;
+
+					// not very effective
+					} else if (arrPlayer2.type[i] == 'fire' || arrPlayer2.type[i] == 'steel' || arrPlayer2.type[i] == 'poison') {
+						damage /= 2;
+
+					// normal
+					} else {
+						damage *= 1;
+					}
+				}
+			}
+			return damage;
+		}
+
+		// objek player
+		let player1 = {
+			name: 'popplio',
+			hp: 350,
+			type: ['water'],
+			moves: [
+			{ name: 'moonblast', type: 'fairy', damage: 73, accuracy: 85}, 
+			{ name: 'water gun', type: 'water', damage: 51, accuracy: 78}, 
+			{ name: 'hyper voice', type: 'normal', damage: 58, accuracy: 81},
+			{ name: 'pound', type: 'normal', damage: 43, accuracy: 90}]
+		};
+
+		// objek computer
+		let player2 = {
+			name: 'rowlet',
+			hp: 370,
+			type: ['grass', 'flying'],
+			moves: [
+			{ name: 'razor leaf', type: 'grass', damage: 55, accuracy: 82}, 
+			{ name: 'pluck', type: 'fighting', damage: 63, accuracy: 78}, 
+			{ name: 'tackle', type: 'normal', damage: 42, accuracy: 90},
+			{ name: 'astonish', type: 'ghost', damage: 50, accuracy: 76}]
+		};
+
+		// ------------------------------------ Main Code ---------------------------------------------
+		main = confirm(`ready ?`);
+
+		// jika memilih main
+		while (main) {
+			// tampilkan daftar move player ke console log
+			for (let arr of player1.moves) {
+				console.log(arr);
+			}
+			console.log('\n');
+			// jika hp player dan computer masih di atas 0
+			while (player1.hp > 0 && player2.hp > 0) {
+				// player1 terlebih dahulu
+			
+				// cetak turn
+				console.log(`turn ${turn += 1} [ Player : ${player1.name} (${player1.hp} Hp) vs Comp : ${player2.name} (${player2.hp} Hp) ]`);
+				do {
+					move = prompt(`What will ${player1.name} do ?`);
+
+					for (let i = 0; i < player1.moves.length; i++) {
+						if (move == player1.moves[i].name) {
+							console.log('\n');
+							console.log(`${player1.name} use ${move}`);
+							indexMove = i;	
+							break;
+						} else if (!move) {
+							console.log(`you must choose a move!`);
+							break;
+						} else if (i == player1.moves.length - 1) {
+							console.log(`${player1.name} can't do that.`);
+							indexMove = 'null';
+						}
+					}
+				}
+				while (indexMove == 'null' || !move);
+
+				damage = player1.moves[indexMove].damage;
+
+				if (statusAccuracy(player1.moves[indexMove].accuracy)) {
+					typeEffectiveness(player1.moves[indexMove].type, indexMove, player1, player2);
+				} else {
+					console.log(`${player1.name}'s attack missed!`);
+					damage = 0;
+				}
+				player2.hp -= damage;
+
+				if (player2.hp <= 0) {
+					player2.hp = 0;
+				} 	
+				console.log(`${player2.name} hit point : ${player2.hp}`);
+				console.log('\n');
+
+				// giliran lawan menyerang
+
+				let randomIndexMoves = Math.floor(Math.random() * player2.moves.length);
+				console.log(`${player2.name} use ${player2.moves[randomIndexMoves].name}`);
+
+				damage = player2.moves[randomIndexMoves].damage;
+
+				if (statusAccuracy(player2.moves[randomIndexMoves].accuracy)) {
+					typeEffectiveness(player2.moves[randomIndexMoves].type, randomIndexMoves, player2, player1);
+				} else {
+					console.log(`${player2.name}'s attack missed!`);
+					damage = 0;
+				}
+				player1.hp -= damage;
+
+				if (player1.hp <= 0) {
+					player1.hp = 0;
+				} 	
+				console.log(`${player1.name} hit point : ${player1.hp}`);
+				console.log('\n');
+			}
+
+			// ---------------------------------- Messages ------------------------------------------------
+			if (player1.hp === 0 && player2.hp === 0) {
+				console.log(`${player1.name} and ${player2.name} are fainted.`);
+			} else if (player1.hp === 0) {
+				console.log(`${player2.name}'s win`);
+			} else {
+				console.log(`${player1.name}'s win`);
+			}
+
+			console.log(`total turn = ${turn}`);
+
+			main = confirm(`wanna play again ?`);
+			if (main) {
+				console.clear();
+				player1.hp = 350;
+				player2.hp = 370;
+				turn = 0;
+			} 
+		}
+
+		if (!main) {
+			console.log(`see ya :')`);
+		}  
+		
+	</script>
+</body>
+</html>
